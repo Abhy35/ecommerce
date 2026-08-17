@@ -39,6 +39,9 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/reset', resetRoutes);
 app.use('/api/payment-summary', paymentSummaryRoutes);
 
+app.get('/', (req, res) => {
+  res.send('Ecommerce backend is running!');
+});
 // Serve static files from the dist folder
 app.use(express.static(path.join(__dirname, 'dist')));
 
@@ -99,9 +102,9 @@ if (productCount === 0) {
   console.log('Default data added to the database.');
 }
 
-app.get('/', (req, res) => {
-  res.send('Ecommerce backend is running!');
-});
+// app.get('/', (req, res) => {
+//   res.send('Ecommerce backend is running!');
+// });
 // Start server
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
