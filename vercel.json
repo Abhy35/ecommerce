@@ -1,9 +1,0 @@
-{
-  "functions": {
-    "ecommerce-backend/server.js": {
-      "includeFiles": [
-        "ecommerce-backend/node_modules/sql.js/dist/sql-wasm.wasm"
-      ]
-    }
-  }
-}
