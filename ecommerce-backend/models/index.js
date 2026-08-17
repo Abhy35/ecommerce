@@ -10,7 +10,7 @@ const __dirname = path.dirname(__filename);
 
 sqlJsAsSqlite3.configure({
   initSqlJs,
-  wasmFileBaseUrl: 'https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/'
+  wasmFileBaseUrl: path.join(__dirname, '../node_modules/sql.js/dist/')
 });
 
 const isUsingRDS = process.env.RDS_HOSTNAME && process.env.RDS_USERNAME && process.env.RDS_PASSWORD;
