@@ -99,6 +99,9 @@ if (productCount === 0) {
   console.log('Default data added to the database.');
 }
 
+app.get('/', (req, res) => {
+  res.send('Ecommerce backend is running!');
+});
 // Start server
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

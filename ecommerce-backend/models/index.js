@@ -1,46 +1,54 @@
 import { Sequelize } from 'sequelize';
-import sqlJsAsSqlite3 from 'sql.js-as-sqlite3';
-import initSqlJs from 'sql.js';
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-sqlJsAsSqlite3.configure({
-  initSqlJs,
-  wasmFileBaseUrl: path.join(__dirname, '../node_modules/sql.js/dist/')
-});
-
-const isUsingRDS = process.env.RDS_HOSTNAME && process.env.RDS_USERNAME && process.env.RDS_PASSWORD;
-const dbType = process.env.DB_TYPE || 'mysql';
-const defaultPorts = {
-  mysql: 3306,
-  postgres: 5432,
-};
-const defaultPort = defaultPorts[dbType];
 
 export let sequelize;
 
-if (isUsingRDS) {
-  sequelize = new Sequelize({
-    database: process.env.RDS_DB_NAME,
-    username: process.env.RDS_USERNAME,
-    password: process.env.RDS_PASSWORD,
-    host: process.env.RDS_HOSTNAME,
-    port: process.env.RDS_PORT || defaultPort,
-    dialect: dbType,
-    logging: false
+if (process.env.DATABASE_URL) {
+  // Render / production database
+  sequelize = new Sequelize(process.env.DATABASE_URL, {
+    dialect: 'postgres',
+    logging: false,
+    dialectOptions: {
+      ssl: {
+        require: true,
+        rejectUnauthorized: false
+      }
+    }
   });
 } else {
+  // Local development
+  const sqlJsAsSqlite3 = (await import('sql.js-as-sqlite3')).default;
+  const initSqlJs = (await import('sql.js')).default;
+  const fs = (await import('fs')).default;
+  const path = (await import('path')).default;
+  const { fileURLToPath } = await import('url');
+
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = path.dirname(__filename);
+
+  sqlJsAsSqlite3.configure({
+    initSqlJs,
+    wasmFileBaseUrl: path.join(
+      __dirname,
+      '../node_modules/sql.js/dist/'
+    )
+  });
+
   sequelize = new Sequelize({
     dialect: 'sqlite',
     dialectModule: sqlJsAsSqlite3,
     logging: false
   });
 
-  // Save database to file after write operations.
+  async function saveDatabaseToFile() {
+    const dbInstance =
+      await sequelize.connectionManager.getConnection();
+
+    const binaryArray = dbInstance.database.export();
+    const buffer = Buffer.from(binaryArray);
+
+    fs.writeFileSync('database.sqlite', buffer);
+  }
+
   sequelize.addHook('afterCreate', saveDatabaseToFile);
   sequelize.addHook('afterDestroy', saveDatabaseToFile);
   sequelize.addHook('afterUpdate', saveDatabaseToFile);
@@ -49,11 +57,4 @@ if (isUsingRDS) {
   sequelize.addHook('afterBulkCreate', saveDatabaseToFile);
   sequelize.addHook('afterBulkDestroy', saveDatabaseToFile);
   sequelize.addHook('afterBulkUpdate', saveDatabaseToFile);
-}
-
-export async function saveDatabaseToFile() {
-  const dbInstance = await sequelize.connectionManager.getConnection();
-  const binaryArray = dbInstance.database.export();
-  const buffer = Buffer.from(binaryArray);
-  fs.writeFileSync('database.sqlite', buffer);
 }
