@@ -7,6 +7,7 @@ import { NotFoundPage } from './pages/NotFoundPage'
 import './App.css'
 import { useState, useEffect } from 'react'
 import axios from 'axios'
+axios.defaults.baseURL = 'https://ecommerce-backend-8m04.onrender.com';
 import { Search } from './components/Search'
 
 function App() {
@@ -23,7 +24,7 @@ function App() {
 
   }, [])
 
-  window.axios = axios;
+  // window.axios = axios;
 
   return (
     <Routes>

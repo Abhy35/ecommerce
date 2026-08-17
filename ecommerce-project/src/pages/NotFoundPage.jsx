@@ -1,6 +1,6 @@
 import { Header } from "../components/Header"
 import './NotFoundPage.css'
-import '../components/Header.css'
+import '../components/header.css'
 export function NotFoundPage(){
   return (
     <>
