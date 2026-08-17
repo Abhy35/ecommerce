@@ -1,6 +1,12 @@
 import { Sequelize } from 'sequelize';
 import sqlJsAsSqlite3 from 'sql.js-as-sqlite3';
+import initSqlJs from 'sql.js';
 import fs from 'fs';
+
+sqlJsAsSqlite3.configure({
+  initSqlJs,
+  wasmFileBaseUrl: 'https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/'
+});
 
 const isUsingRDS = process.env.RDS_HOSTNAME && process.env.RDS_USERNAME && process.env.RDS_PASSWORD;
 const dbType = process.env.DB_TYPE || 'mysql';
