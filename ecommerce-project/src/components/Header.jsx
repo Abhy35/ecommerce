@@ -1,5 +1,5 @@
 import {NavLink, Link} from 'react-router'
-import './Header.css'
+import './header.css'
 import { useState } from 'react';
 export function Header({cart}){
   let totalQuantity = 0;
